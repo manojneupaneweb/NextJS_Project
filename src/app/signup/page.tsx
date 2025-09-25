@@ -10,6 +10,7 @@ function SignupPage() {
   const router = useRouter()
   const [user, setUser] = React.useState({ username: '', email: '', password: '' })
   const [buttonDisabled, setButtonDisabled] = React.useState(true)
+  const [processing, setProcessing] = React.useState(false)
 
   React.useEffect(() => {
     const isDisabled = !user.username || !user.email || !user.password
@@ -19,6 +20,7 @@ function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      setProcessing(true)
       const response = await axios.post('/api/users/signup', user)
       toast.success(response.data.message || "User created successfully")
       setUser({ username: '', email: '', password: '' })
@@ -30,6 +32,8 @@ function SignupPage() {
       } else {
         toast.error("Something went wrong")
       }
+    } finally {
+      setProcessing(false)
     }
   }
 
@@ -65,10 +69,10 @@ function SignupPage() {
           />
           <button
             type="submit"
-            disabled={buttonDisabled}
+            disabled={buttonDisabled || processing}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {buttonDisabled ? 'Please fill all the fields' : 'Sign Up'}
+            {buttonDisabled ? 'Please fill all the fields' : processing ? 'Processing...' : 'Sign Up'}
           </button>
         </form>
         <p className="mt-4 text-center">
